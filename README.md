@@ -1,101 +1,78 @@
-# @atomist-seeds/spring-sdm
+# Software Delivery Machine (K8) - by Atomist
 
-[![atomist sdm goals](http://badge.atomist.com/T29E48P34/atomist/spring-sdm-seed/94b9a596-f882-4d42-9cc4-fcf70bd5b3db)](https://app.atomist.com/workspace/T29E48P34)
-[![npm version](https://img.shields.io/npm/v/@atomist/spring-sdm-seed.svg)](https://www.npmjs.com/package/@atomist/spring-sdm-seed)
-
-An [Atomist][atomist] software delivery machine (SDM) automating the
-creation, building, and delivery of [Spring][spring] and [Spring
-Boot][spring-boot] applications.
-
-[spring]: https://spring.io/ (Spring)
-[spring-boot]: http://spring.io/projects/spring-boot (Spring Boot)
-
-See the [Atomist documentation][atomist-doc] for more information on
-what SDMs are and what they can do for you using the Atomist API for
-software.
+The SDM framework enables you to control your delivery process in
+code.  Think of it as an API for your software delivery.  See this
+[introduction][atomist-doc] for more information on the concept of a
+Software Delivery Machine and how to create and develop on an SDM.
 
 [atomist-doc]: https://docs.atomist.com/ (Atomist Documentation)
 
-## Prerequisites
+## Getting Started
 
-See the [Atomist Developer documentation][atomist-dev] for
-instructions on setting up your development environment.  Briefly, you
-will need [Git][git], [Node.js][node], and the [Atomist
-CLI][atomist-cli] installed and properly configured on your system.
-For this specific SDM, you will also need [Java][java] and
-[Maven][mvn] installed.  With these installed, you can run this SDM in
-local mode.
-
-To run this SDM for your team, you will need an Atomist workspace.
-See the [Atomist Getting Started Guide][atomist-start] for
-instructions on how to get an Atomist workspace and connect it to your
-source code repositories, continuous integration, chat platform, etc.
-
-[atomist-dev]: https://docs.atomist.com/developer/prerequisites/ (Atomist - Developer Prerequisites)
-[git]: https://git-scm.com/ (Git)
-[atomist-cli]: https://github.com/atomist/cli (Atomist Command-Line Interface)
-[atomist-start]: https://docs.atomist.com/user/ (Atomist - Getting Started)
-[java]: http://openjdk.java.net/install/ (Java - Install)
-[mvn]: https://maven.apache.org/download.cgi (Maven - Install)
-
-## Running
-
-See the [Atomist Developer documentation][atomist-dev] for details on
-how to run this SDM.  Briefly, once the prerequisites are met on your
-system you can start the SDM in local mode with the following command:
+### Clone this repo to:
 
 ```
+~/atomist/<owner>/sdm-spring-k8
+```
+Note: `<owner>` is your Github owner, e.g: idugalic
+
+### Minikube on a Mac
+
+ - Install VirtualBox or another supported hypervisor for your operating system
+ - Install the Kubernetes command line client [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) with Homebrew `brew install kubernetes-cli`
+ - Install the [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) with Homebrew by running `brew cask install minikube`
+
+Once the installation is complete, start Minikube to create a new cluster:
+```
+$ minikube start
+```
+
+Install the [ingress](https://github.com/kubernetes/ingress-nginx#what-is-an-ingress-controller) addon:
+
+```
+$ minikube addons enable ingress
+```
+Now check the status of your local Kubernetes cluster by running:
+```
+$ kubectl get pods --all-namespaces
+```
+
+After a couple of minutes all system internal pods should show in `Running` status with a ready count of `1/1`
+
+### Install the Atomist command-line utility
+
+```
+$ npm install -g @atomist/cli
+```
+
+### Start your local SDM
+
+Install the project dependencies using NPM, compile the TypeScript, and start your SDM in local mode:
+```
+$ cd ~/atomist/<owner>/sdm-spring-k8
 $ atomist start --local
 ```
 
-The Atomist documentation for [running SDMs][atomist-run] has
-instructions for connecting and SDM to the Atomist API for software
-and running an SDM in various environments.
+### See messages from SDM events
 
-[atomist-run]: https://docs.atomist.com/developer/run/ (Atomist - Running SDMs)
-
-## Support
-
-General support questions should be discussed in the `#support`
-channel in the [Atomist community Slack workspace][slack].
-
-If you find a problem, please create an [issue][].
-
-[issue]: https://github.com/atomist/spring-sdm-seed/issues
-
-## Development
-
-You will need to install [Node.js][node] to build and test this
-project.
-
-[node]: https://nodejs.org/ (Node.js)
-
-### Build and test
-
-Install dependencies.
-
+In order to see messages from events (not interspersed with logs), activate a message listener in another terminal:
 ```
-$ npm install
+atomist feed
 ```
 
-Use the `build` package script to compile, test, lint, and build the
-documentation.
+### Adding Projects
 
+Further projects can be added under the expanded directory tree in two ways:
+
+#### Configure Existing Projects
+If you already have repositories cloned/copied under your `~/atomist/<owner>/`, configure them to activate the local SDM on commit.
+
+Add the Atomist git hook to the existing git projects within this directory structure by running the following command/s:
 ```
-$ npm run build
+$ cd ~/atomist/<owner>/<repo>
+$ atomist add git hooks
 ```
+#### 'atomist clone' Command
+The easiest way to add an existing project to your SDM projects is: run the atomist clone command to clone a GitHub.com repository in the right place in the expanded tree and automatically install the git hooks:
 
-### Release
-
-Releases are handled via the [Atomist SDM][atomist-sdm].  Just press
-the 'Approve' button in the Atomist dashboard or Slack.
-
-[atomist-sdm]: https://github.com/atomist/atomist-sdm (Atomist Software Delivery Machine)
-
----
-
-Created by [Atomist][atomist].
-Need Help?  [Join our Slack workspace][slack].
-
-[atomist]: https://atomist.com/ (Atomist - How Teams Deliver Software)
-[slack]: https://join.atomist.com/ (Atomist Community Slack)
+`atomist clone https://github.com/<owner>/<repo>`
