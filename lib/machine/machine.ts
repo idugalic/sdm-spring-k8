@@ -40,6 +40,7 @@ import {
     kubernetesSupport,
 } from "@atomist/sdm-pack-k8";
 import {
+    CloudNativeGitHubIssueRaisingReviewListener,
     IsMaven,
     MavenBuilder,
     MavenProgressReporter,
@@ -49,7 +50,8 @@ import {
     SetAtomistTeamInApplicationYml,
     SpringProjectCreationParameterDefinitions,
     SpringProjectCreationParameters,
-    SpringSupport,
+    SpringStyleGitHubIssueRaisingReviewListener,
+    springSupport,
     TransformSeedToCustomProject,
 } from "@atomist/sdm-pack-spring";
 import { MavenPackage } from "../support/maven";
@@ -71,6 +73,7 @@ export function machine(
 
     const autofix = new Autofix().with(AddDockerfileAutofix);
     const version = new Version().withVersioner(MavenProjectVersioner);
+    const inspect = new AutoCodeInspection();
 
     const build = new Build().with({
         builder: new MavenBuilder(sdm),
@@ -85,7 +88,7 @@ export function machine(
     const kubernetesDeploy = new KubernetesDeploy({ environment: "testing" });
 
     const BaseGoals = goals("checks")
-        .plan(version, autofix, new AutoCodeInspection(), new PushImpact());
+        .plan(version, autofix, inspect, new PushImpact());
 
     const BuildGoals = goals("build")
         .plan(build).after(autofix, version);
@@ -101,7 +104,19 @@ export function machine(
     ));
 
     sdm.addExtensionPacks(
-        SpringSupport,
+        springSupport({
+            inspectGoal: inspect,
+            autofixGoal: autofix,
+            review: {
+                cloudNative: true,
+                springStyle: true,
+            },
+            autofix: {},
+            reviewListeners: [
+                CloudNativeGitHubIssueRaisingReviewListener,
+                SpringStyleGitHubIssueRaisingReviewListener,
+            ],
+        }),
         kubernetesSupport(),
     );
 
